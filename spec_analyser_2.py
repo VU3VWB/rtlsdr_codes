@@ -6,11 +6,11 @@ from pylab import *
 from rtlsdr import *
 
 ##########################################################################################
-start_freq = 50e6 
-stop_freq = 100e6
+start_freq = 94.3e6 
+stop_freq = start_freq+2.4e6
 samp_rate = 2.4e6
 N_SAMPLE = 256
-N_FFT = 16
+N_FFT = 256
 N_ITER = int((stop_freq-start_freq)/samp_rate)
 decim_factor = 1
 
@@ -19,7 +19,7 @@ print "Expected Res BW",samp_rate*1e-6/N_FFT,"MHz"
 
 sdr = RtlSdr()
 sdr.sample_rate = samp_rate
-sdr.gain = 4
+sdr.gain = 40
 
 P_array = np.array([])
 freq_array = np.array([])
