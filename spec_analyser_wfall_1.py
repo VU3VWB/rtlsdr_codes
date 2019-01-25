@@ -7,7 +7,7 @@ from rtlsdr import *
 
 ##########################################################################################
 start_freq = 94.3e6 
-stop_freq = start_freq+4.8e6
+stop_freq = start_freq+2.4e6
 samp_rate = 2.4e6
 N_SAMPLE = 256
 N_FFT = N_SAMPLE
@@ -20,8 +20,7 @@ print "Expected Res BW",samp_rate*1e-6/N_FFT,"MHz"
 sdr = RtlSdr()
 sdr.sample_rate = samp_rate
 sdr.gain = 40
-
-for nseq in range(100):
+for nseq in range(10):
     P_array = np.array([])
     freq_array = np.array([])
     print nseq
@@ -56,8 +55,8 @@ plt.plot(freq_array, P_array)
 plt.xlabel('Frequency (MHz)')
 plt.ylabel('Relative power')
 
-plt.figure()
-plt.imshow(wfall_im)
+#plt.figure()
+#plt.imshow(wfall_im)
 
 sdr.close()
 plt.show()
