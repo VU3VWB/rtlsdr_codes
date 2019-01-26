@@ -6,8 +6,8 @@ from pylab import *
 from rtlsdr import *
 
 ##########################################################################################
-start_freq = 94.3e6 
-stop_freq = start_freq+2.4e6
+start_freq = 98e6 
+stop_freq = start_freq+9.6e6
 samp_rate = 2.4e6
 N_SAMPLE = 256
 N_FFT = N_SAMPLE
@@ -20,13 +20,13 @@ print "Expected Res BW",samp_rate*1e-6/N_FFT,"MHz"
 sdr = RtlSdr()
 sdr.sample_rate = samp_rate
 sdr.gain = 40
-for nseq in range(10):
+for nseq in range(100):
     P_array = np.array([])
     freq_array = np.array([])
     print nseq
     for k in range(N_ITER):
     
-        sdr.center_freq = start_freq + k*samp_rate/decim_factor
+        sdr.center_freq = start_freq + k*samp_rate
         	
         samples = sdr.read_samples(N_SAMPLE)
         samples = samples - np.mean(samples)
@@ -34,8 +34,8 @@ for nseq in range(10):
         pss, freqs = mlab.psd(x=samples, NFFT=N_FFT, Fs=sdr.sample_rate/1e6)
         freqs += sdr.center_freq/1e6
         	
-        freqs = freqs[0:len(freqs)/decim_factor]
-        pss = pss[0:len(pss)/decim_factor]
+#        freqs = freqs[0:len(freqs)]
+#        pss = pss[0:len(pss)]
         	
         P_array = np.append(P_array,pss)
         freq_array = np.append(freq_array, freqs)
@@ -46,17 +46,17 @@ for nseq in range(10):
          
 
 plt.figure()
-plt.plot(freq_array, 10*np.log10(P_array))
+plt.plot(freq_array, 10*np.log10(P_array[::-1]))
 plt.xlabel('Frequency (MHz)')
 plt.ylabel('Relative power (dB)')
 
-plt.figure()
-plt.plot(freq_array, P_array)
-plt.xlabel('Frequency (MHz)')
-plt.ylabel('Relative power')
-
 #plt.figure()
-#plt.imshow(wfall_im)
+#plt.plot(freq_array, P_array[::-1])
+#plt.xlabel('Frequency (MHz)')
+#plt.ylabel('Relative power')
+
+plt.figure()
+plt.imshow(wfall_im)
 
 sdr.close()
 plt.show()
