@@ -1,5 +1,0 @@
-Install librtlsdr 
-In mac, use "brew install librtlsdr"
-
-Then install pyrtlsdr using pip
-
