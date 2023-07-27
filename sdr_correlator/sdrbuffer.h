@@ -11,5 +11,8 @@ struct sdrbuf
     uint32_t srate;
     uint32_t tv_sec;
     uint32_t tv_nsec;
+    uint32_t bufsize;
     uint8_t  buffer[BLOCKSIZE];
+    // uint8_t  *buffer;
+
 };

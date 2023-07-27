@@ -1,21 +1,37 @@
 #include <stdio.h>
-#include <rtl-sdr.h>
-#include <unistd.h>
-#include <assert.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <assert.h>
 #include <time.h>
+#include <rtl-sdr.h>
 #include "sdrbuffer.h"
 
-int main(void)
+int main(int argc, char **argv)
 {
     uint32_t devcount, index, setfreq, setrate;
-    char manufact[256], product[256], serial[256];
+    char manufact[256], product[256], serial[256], c;
     int res, nread;
     static rtlsdr_dev_t *dev = NULL;
     struct sdrbuf rtlbuffer;
     struct timespec acqtime;
 
-    index = 0;
+    index = 0; //default
+
+    while ((c = getopt (argc, argv, "-d:")) != -1)
+    {
+        switch (c)
+        {
+            case 'd':
+                index = (uint32_t) strtol(optarg, NULL, 10);
+                break;
+            case '?':
+                fprintf(stderr, "Inaccurate arguments, exiting ....\n");
+                exit(EXIT_FAILURE);
+            default:
+                abort ();
+        }
+    }
 
     devcount = rtlsdr_get_device_count();
     if (devcount<1)
@@ -23,19 +39,21 @@ int main(void)
         fprintf(stderr, "No devices found ! Exiting ....\n");
         exit(EXIT_FAILURE);
     }
-    fprintf(stdout, "Found %d device(s)\n", devcount);
-    res = rtlsdr_get_device_usb_strings(index, manufact, product, serial);
-    assert(res==0);
-
-    fprintf(stdout, "Manufacturer : %s\n", manufact);
-    fprintf(stdout, "Product : %s\n", product);
-    fprintf(stdout, "Serial Number in ASCII : %s\n", serial);
-
-    rtlbuffer.serial_no = (uint32_t) strtol(serial, NULL, 10);
-    fprintf(stdout, "Serial Number in numerical : %d\n", rtlbuffer.serial_no );
+    fprintf(stdout, "Found %d device(s) and attempting to open device indexed %d\n", devcount, index);
 
     res = rtlsdr_open(&dev, index);
-    assert(res==0);
+    if (res != 0)
+    {
+        fprintf(stderr, "The selected device could not be opened ! Exiting ....\n");
+        exit(EXIT_FAILURE);
+    }
+
+    res = rtlsdr_get_device_usb_strings(index, manufact, product, serial);
+    rtlbuffer.serial_no = (uint32_t) strtol(serial, NULL, 10);
+    fprintf(stdout, "Manufacturer : %s\n", manufact);
+    fprintf(stdout, "Product : %s\n", product);
+    // fprintf(stdout, "Serial Number in ASCII : %s\n", serial);
+    fprintf(stdout, "Device serial Number is : %d\n", rtlbuffer.serial_no);
 
     setrate = 2000000;
     res = rtlsdr_set_sample_rate(dev, setrate);
@@ -49,6 +67,8 @@ int main(void)
     rtlbuffer.cfreq = rtlsdr_get_center_freq(dev);
     fprintf(stdout, "Tuned to %d\n", rtlbuffer.cfreq);
  
+    rtlbuffer.bufsize = (uint32_t) BLOCKSIZE;
+
     res = rtlsdr_reset_buffer(dev);
     usleep(5000);
     uint8_t dummybuffer[262144];
