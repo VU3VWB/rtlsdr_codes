@@ -2,7 +2,7 @@
 
 // #define BLOCKSIZE 262144
 
-#define BLOCKSIZE 4194304
+#define BLOCKSIZE 8388608
 
 struct sdrbuf
 {

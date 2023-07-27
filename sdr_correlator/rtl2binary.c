@@ -13,7 +13,9 @@ int main(int argc, char **argv)
     char manufact[256], product[256], serial[256], c;
     int res, nread;
     static rtlsdr_dev_t *dev = NULL;
-    struct sdrbuf rtlbuffer;
+    // struct sdrbuf rtlbuffer;
+    struct sdrbuf *rtlbuffer = malloc(sizeof(struct sdrbuf));
+
     struct timespec acqtime;
 
     index = 0; //default
@@ -49,25 +51,25 @@ int main(int argc, char **argv)
     }
 
     res = rtlsdr_get_device_usb_strings(index, manufact, product, serial);
-    rtlbuffer.serial_no = (uint32_t) strtol(serial, NULL, 10);
+    rtlbuffer->serial_no = (uint32_t) strtol(serial, NULL, 10);
     fprintf(stdout, "Manufacturer : %s\n", manufact);
     fprintf(stdout, "Product : %s\n", product);
     // fprintf(stdout, "Serial Number in ASCII : %s\n", serial);
-    fprintf(stdout, "Device serial Number is : %d\n", rtlbuffer.serial_no);
+    fprintf(stdout, "Device serial Number is : %d\n", rtlbuffer->serial_no);
 
     setrate = 2000000;
     res = rtlsdr_set_sample_rate(dev, setrate);
     assert(res==0);
-    rtlbuffer.srate = rtlsdr_get_sample_rate(dev);
-    fprintf(stdout, "Sample rate achieved is %d\n",  rtlbuffer.srate);
+    rtlbuffer->srate = rtlsdr_get_sample_rate(dev);
+    fprintf(stdout, "Sample rate achieved is %d\n",  rtlbuffer->srate);
 
     setfreq = 97700000; //ABC Classic !
     res = rtlsdr_set_center_freq(dev, setfreq);
     assert(res==0);
-    rtlbuffer.cfreq = rtlsdr_get_center_freq(dev);
-    fprintf(stdout, "Tuned to %d\n", rtlbuffer.cfreq);
+    rtlbuffer->cfreq = rtlsdr_get_center_freq(dev);
+    fprintf(stdout, "Tuned to %d\n", rtlbuffer->cfreq);
  
-    rtlbuffer.bufsize = (uint32_t) BLOCKSIZE;
+    rtlbuffer->bufsize = (uint32_t) BLOCKSIZE;
 
     res = rtlsdr_reset_buffer(dev);
     usleep(5000);
@@ -86,12 +88,12 @@ int main(int argc, char **argv)
     res = clock_gettime(CLOCK_REALTIME, &acqtime);
     assert(res==0);
 
-    rtlbuffer.tv_sec  = (uint32_t)acqtime.tv_sec;
-    rtlbuffer.tv_nsec = (uint32_t)acqtime.tv_nsec;
-    res = rtlsdr_read_sync(dev, rtlbuffer.buffer, BLOCKSIZE, &nread);
+    rtlbuffer->tv_sec  = (uint32_t)acqtime.tv_sec;
+    rtlbuffer->tv_nsec = (uint32_t)acqtime.tv_nsec;
+    res = rtlsdr_read_sync(dev, rtlbuffer->buffer, BLOCKSIZE, &nread);
     assert(res==0);
 
-    fprintf(stdout, "Acquired data at %d seconds and %d nsecs \n",  rtlbuffer.tv_sec,  rtlbuffer.tv_nsec);
+    fprintf(stdout, "Acquired data at %d seconds and %d nsecs \n",  rtlbuffer->tv_sec,  rtlbuffer->tv_nsec);
     rtlsdr_close(dev);
 
     fprintf(stdout, "Writing data into a binary file \n");
@@ -100,7 +102,7 @@ int main(int argc, char **argv)
     if (binfile != NULL) 
     {
         // fwrite(&rtlbuffer, sizeof(struct sdrbuf), 1, binfile); // original
-        fwrite(&rtlbuffer, sizeof(rtlbuffer), 1, binfile); // seems to work ?
+        fwrite(rtlbuffer, sizeof(struct sdrbuf), 1, binfile); 
         fclose(binfile);
     }
 
