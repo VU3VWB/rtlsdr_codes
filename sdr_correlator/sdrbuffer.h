@@ -1,6 +1,8 @@
 #include <stdint.h>
 
-#define BLOCKSIZE 262144
+// #define BLOCKSIZE 262144
+
+#define BLOCKSIZE 4194304
 
 struct sdrbuf
 {
