@@ -6,6 +6,7 @@
 #include <time.h>
 #include <rtl-sdr.h>
 #include "sdrbuffer.h"
+#define DUMMYBYTES 262144
 
 int main(int argc, char **argv)
 {
@@ -13,9 +14,7 @@ int main(int argc, char **argv)
     char manufact[256], product[256], serial[256], c;
     int res, nread;
     static rtlsdr_dev_t *dev = NULL;
-    // struct sdrbuf rtlbuffer;
     struct sdrbuf *rtlbuffer = malloc(sizeof(struct sdrbuf));
-
     struct timespec acqtime;
 
     index = 0; //default
@@ -68,30 +67,33 @@ int main(int argc, char **argv)
     assert(res==0);
     rtlbuffer->cfreq = rtlsdr_get_center_freq(dev);
     fprintf(stdout, "Tuned to %d\n", rtlbuffer->cfreq);
- 
-    rtlbuffer->bufsize = (uint32_t) BLOCKSIZE;
 
     res = rtlsdr_reset_buffer(dev);
     usleep(5000);
-    uint8_t dummybuffer[262144];
-    res = rtlsdr_read_sync(dev, dummybuffer, 262144, &nread); // Dummy read    
-    if (nread != 262144) 
+    uint8_t dummybuffer[DUMMYBYTES];
+    res = rtlsdr_read_sync(dev, dummybuffer, DUMMYBYTES, &nread); // Dummy read    
+    if (nread != DUMMYBYTES) 
     {
         fprintf(stderr, "Error, can't read reliably.\n");
-        return -1; // Not the best way to quit
+        exit(EXIT_FAILURE);
     }
 
     res = rtlsdr_reset_buffer(dev);
     assert(res==0);
-    nread = BLOCKSIZE;
 
     res = clock_gettime(CLOCK_REALTIME, &acqtime);
     assert(res==0);
 
+    rtlbuffer->bufsize = (uint32_t) BUFSIZE;
+
     rtlbuffer->tv_sec  = (uint32_t)acqtime.tv_sec;
     rtlbuffer->tv_nsec = (uint32_t)acqtime.tv_nsec;
-    res = rtlsdr_read_sync(dev, rtlbuffer->buffer, BLOCKSIZE, &nread);
-    assert(res==0);
+
+    for (int i=0; i < (int)(BUFSIZE/BLOCKSIZE); i++)
+    {
+        res = rtlsdr_read_sync(dev, (rtlbuffer->buffer + (i*BLOCKSIZE)), BLOCKSIZE, &nread);
+        // assert(res==0);
+    }
 
     fprintf(stdout, "Acquired data at %d seconds and %d nsecs \n",  rtlbuffer->tv_sec,  rtlbuffer->tv_nsec);
     rtlsdr_close(dev);

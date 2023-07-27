@@ -1,3 +1,5 @@
+.PHONY: sdrbuffer.h
+
 all: rtl2binary read_rtlbinary
 
 rtl2binary: rtl2binary.c

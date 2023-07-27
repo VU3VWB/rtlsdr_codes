@@ -1,8 +1,6 @@
 #include <stdint.h>
-
-// #define BLOCKSIZE 262144
-
 #define BLOCKSIZE 8388608
+#define BUFSIZE 33554432
 
 struct sdrbuf
 {
@@ -12,7 +10,5 @@ struct sdrbuf
     uint32_t tv_sec;
     uint32_t tv_nsec;
     uint32_t bufsize;
-    uint8_t  buffer[BLOCKSIZE];
-    // uint8_t  *buffer;
-
+    uint8_t  buffer[BUFSIZE];
 };
