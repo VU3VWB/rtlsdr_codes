@@ -8,7 +8,7 @@
 #include "sdrbuffer.h"
 #define DUMMYBYTES 262144
 
-int main(int argc, char **argv)
+int main(void)
 {
     uint32_t devcount, index, setfreq, setrate;
     char manufact[256], product[256], serial[256], c;
@@ -19,20 +19,20 @@ int main(int argc, char **argv)
 
     index = 0; //default
 
-    while ((c = getopt (argc, argv, "-d:")) != -1)
-    {
-        switch (c)
-        {
-            case 'd':
-                index = (uint32_t) strtol(optarg, NULL, 10);
-                break;
-            case '?':
-                fprintf(stderr, "Inaccurate arguments, exiting ....\n");
-                exit(EXIT_FAILURE);
-            default:
-                abort ();
-        }
-    }
+//     while ((c = getopt (argc, argv, "-d:")) != -1)
+//     {
+//         switch (c)
+//         {
+//             case 'd':
+//                 index = (uint32_t) strtol(optarg, NULL, 10);
+//                 break;
+//             case '?':
+//                 fprintf(stderr, "Inaccurate arguments, exiting ....\n");
+//                 exit(EXIT_FAILURE);
+//             default:
+//                 abort ();
+//         }
+//     }
 
     devcount = rtlsdr_get_device_count();
     if (devcount<1)
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     rtlbuffer->srate = rtlsdr_get_sample_rate(dev);
     fprintf(stdout, "Sample rate achieved is %d\n",  rtlbuffer->srate);
 
-    setfreq = 97700000; //ABC Classic !
+    setfreq = 93700000; //ABC Classic !
     res = rtlsdr_set_center_freq(dev, setfreq);
     assert(res==0);
     rtlbuffer->cfreq = rtlsdr_get_center_freq(dev);
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 
     fprintf(stdout, "Writing data into a binary file \n");
 
-    FILE * binfile= fopen("rtldata.bin", "wb");
+    FILE * binfile= fopen("rtldata1.bin", "wb");
     if (binfile != NULL) 
     {
         // fwrite(&rtlbuffer, sizeof(struct sdrbuf), 1, binfile); // original
@@ -109,6 +109,6 @@ int main(int argc, char **argv)
     }
 
     fprintf(stdout, "Exiting ! \n");
-
+    free (rtlbuffer);
     return 0;
 }
