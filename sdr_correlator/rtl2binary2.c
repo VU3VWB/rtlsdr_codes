@@ -56,17 +56,20 @@ int main(void)
     // fprintf(stdout, "Serial Number in ASCII : %s\n", serial);
     fprintf(stdout, "Device serial Number is : %d\n", rtlbuffer->serial_no);
 
-    setrate = 2000000;
+    setrate = SAMPLERATE;
     res = rtlsdr_set_sample_rate(dev, setrate);
     assert(res==0);
     rtlbuffer->srate = rtlsdr_get_sample_rate(dev);
     fprintf(stdout, "Sample rate achieved is %d\n",  rtlbuffer->srate);
 
-    setfreq = 93700000;
+    setfreq = TUNEFREQ;
     res = rtlsdr_set_center_freq(dev, setfreq);
     assert(res==0);
     rtlbuffer->cfreq = rtlsdr_get_center_freq(dev);
     fprintf(stdout, "Tuned to %d\n", rtlbuffer->cfreq);
+
+    res = rtlsdr_set_tuner_gain(dev, 192);
+    assert(res==0);
 
     res = rtlsdr_reset_buffer(dev);
     usleep(5000);

@@ -1,7 +1,8 @@
 #include <stdint.h>
 #define BLOCKSIZE 262144
 #define BUFSIZE 8388608
-
+#define TUNEFREQ 217000000
+#define SAMPLERATE 2000000
 struct sdrbuf
 {
     uint32_t serial_no;
