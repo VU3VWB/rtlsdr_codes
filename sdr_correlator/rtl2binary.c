@@ -40,7 +40,7 @@ int main(int argc, char **argv)
                 setgain = (uint32_t) strtol(optarg, NULL, 10);
                 break;           
             default:
-                fprintf(stderr, "Inaccurate arguments, exiting ....\n");
+                fprintf(stderr, "Can't decipher the arguments, exiting ....\n");
                 exit(EXIT_FAILURE);        
         }
     }
