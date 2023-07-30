@@ -51,7 +51,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "No devices found ! Exiting ....\n");
         exit(EXIT_FAILURE);
     }
-    fprintf(stdout, "Found %d device(s) and attempting to open device indexed %d\n", devcount, index);
+    fprintf(stdout, "\nFound %d device(s) and attempting to open device indexed %d\n", devcount, index);
 
     res = rtlsdr_open(&dev, index);
     if (res != 0)
@@ -105,11 +105,8 @@ int main(int argc, char **argv)
     res = rtlsdr_reset_buffer(dev);
     assert(res==0);
 
-    res = clock_gettime(CLOCK_REALTIME, &acqtime);
-    assert(res==0);
-
     rtlbuffer->bufsize = (uint32_t) BUFSIZE;
-
+    clock_gettime(CLOCK_REALTIME, &acqtime);
     rtlbuffer->tv_sec  = (uint32_t)acqtime.tv_sec;
     rtlbuffer->tv_nsec = (uint32_t)acqtime.tv_nsec;
 
